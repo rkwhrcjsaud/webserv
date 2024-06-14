@@ -8,4 +8,5 @@
 
 # References
 
+* [HTTP/1.1](https://datatracker.ietf.org/doc/html/rfc2616)
 * [nginx documentation](https://nginx.org/en/docs/)
