@@ -3,6 +3,9 @@
 
 # Requirements
 
+* Setup the server_names or not
+  * [nginx server_name](https://nginx.org/en/docs/http/ngx_http_core_module.html#server_name)
+
 # References
 
 * [nginx documentation](https://nginx.org/en/docs/)
