@@ -5,6 +5,7 @@
 
 # Requirements
 * Choose the port and host of each ’server’.
+  * [nginx server](https://nginx.org/en/docs/http/ngx_http_core_module.html#server) 
   * [nginx listen](https://nginx.org/en/docs/http/ngx_http_core_module.html#listen)
 
 * Setup the server_names or not
