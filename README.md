@@ -44,6 +44,11 @@ be saved.
 
 # References
 
+* [HTTP/1.1](https://datatracker.ietf.org/doc/html/rfc2616)
+* [nginx documentation](https://nginx.org/en/docs/)
+
+# Conventions
+
 <details>
 <summary>Github convention</summary>
 <div markdown="1">
@@ -188,6 +193,3 @@ ex) [Feat] 생성 MainView / [Asset] 추가 color set
 
 </div>
 </details>
-
-* [HTTP/1.1](https://datatracker.ietf.org/doc/html/rfc2616)
-* [nginx documentation](https://nginx.org/en/docs/)
