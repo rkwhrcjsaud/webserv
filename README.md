@@ -10,6 +10,10 @@
 
 * Setup the server_names or not
   * [nginx server_name](https://nginx.org/en/docs/http/ngx_http_core_module.html#server_name)
+ 
+* The first server for a host:port will be the default for this host:port (that means
+it will answer to all the requests that don’t belong to an other server).
+  * [How nginx processes a request](https://nginx.org/en/docs/http/request_processing.html)
 
 # References
 
