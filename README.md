@@ -15,6 +15,33 @@
 it will answer to all the requests that don’t belong to an other server).
   * [How nginx processes a request](https://nginx.org/en/docs/http/request_processing.html)
 
+* Setup default error pages.
+  * [nginx error_page](https://nginx.org/en/docs/http/ngx_http_core_module.html#error_page)
+
+* Limit client body size.
+  * [nginx client_max_body_size](https://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size)
+ 
+* Define a list of accepted HTTP methods for the route.
+  * [nginx limit_except](https://nginx.org/en/docs/http/ngx_http_core_module.html#limit_except)
+
+* Define a HTTP redirection.
+  * [nginx return](https://nginx.org/en/docs/http/ngx_http_rewrite_module.html#return)
+
+* Define a directory or a file from where the file should be searched (for example, if url `/kapouet` is rooted to `/tmp/www`, url `/kapouet/pouic/toto/pouet` is `/tmp/www/pouic/toto/pouet`).
+  * [nginx root](https://nginx.org/en/docs/http/ngx_http_core_module.html#root)
+
+* Turn on or off directory listing.
+  * [nginx autoindex](https://nginx.org/en/docs/http/ngx_http_autoindex_module.html#autoindex)
+
+* Set a default file to answer if the request is a directory.
+  * [nginx index](https://nginx.org/en/docs/http/ngx_http_index_module.html#index)
+
+* Execute CGI based on certain file extension (for example .php).
+* Make it work with POST and GET methods.
+* Make the route able to accept uploaded files and configure where they should
+be saved.
+  * [nginx ngx_http_scgi_module](https://nginx.org/en/docs/http/ngx_http_scgi_module.html)
+
 # References
 
 <details>
