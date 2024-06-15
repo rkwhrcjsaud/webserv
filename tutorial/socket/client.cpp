@@ -4,6 +4,7 @@
 #include <unistd.h>  
 
 const int PORT = 3000;
+const int BUFFER_SIZE = 1024;
 
 int	main(void)
 {
@@ -41,7 +42,23 @@ int	main(void)
         return 1;
 	}
 
-	std::cout << "Message sent to the server: " << message << std::endl;
+	std::cout << "Message Sent To The Server: " << message << std::endl;
+
+	char buffer[BUFFER_SIZE];
+	memset(buffer, 0, BUFFER_SIZE);
+
+    int size = recv(clientSocket, buffer, sizeof(buffer), 0);
+    if (size < 0) {
+        std::cerr << "Receiving Data Failed" << std::endl;
+        close(clientSocket);
+        return 1;
+    } else if (size == 0) {
+        std::cerr << "ServerSocket Disconnected" << std::endl;
+        close(clientSocket);
+        return 1;
+    }
+
+	std::cout << "Received Message From Server: " << buffer << std::endl;
 
 	// 클라이언트 소켓 종료
 	if (close(clientSocket) < 0) {

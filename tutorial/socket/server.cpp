@@ -74,8 +74,21 @@ int	main(void)
 
     std::cout << "Received Data From Client: " << buffer << std::endl;
 
-    close(clientSocket);
-    close(serverSocket);
+	const char* message = "Hello, webclien!";
+	if (send(clientSocket, message, strlen(message), 0) < 0)
+	{
+		std::cerr << "Data Sending Failed: " << strerror(errno) << std::endl;
+        close(clientSocket);
+        return 1;
+	}
+
+	std::cout << "Message Sent To The Client: " << message << std::endl;
+
+	if (close(clientSocket) < 0 || close(serverSocket))
+	{
+		std::cerr << "Socket Closing Failed: " << strerror(errno) << std::endl;
+        return 1;
+	}
 
 	std::cout << "Socket Closed" << std::endl;
 
