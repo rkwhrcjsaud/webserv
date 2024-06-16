@@ -48,6 +48,7 @@ be saved.
 * [nginx documentation](https://nginx.org/en/docs/)
 * [Nginx Internals: An In-Depth Look at Connection Processing](https://codedamn.com/news/backend/nginx-connection-processing)
 * [Inside NGINX: How We Designed for Performance & Scale](https://www.f5.com/company/blog/nginx/inside-nginx-how-we-designed-for-performance-scale)
+* [The WWW Common Gateway Interface Version 1.1](https://datatracker.ietf.org/doc/html/draft-robinson-www-interface-00)
 
 # Conventions
 
