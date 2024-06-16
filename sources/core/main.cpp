@@ -5,9 +5,24 @@
 #include <netinet/in.h>
 #include <cstring>
 #include <poll.h>
+#include <fstream>
+#include <filesystem>
 #include "../http/HttpRequest.hpp"
+#include "../http/HttpResponse.hpp"
 
 #define BUFFER_SIZE 1024
+
+
+std::string readFileToString(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << filename << std::endl;
+        return "";
+    }
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
+    return content;
+}
 
 int main(void)
 {
@@ -18,7 +33,7 @@ int main(void)
     ports.push_back(53000);
 	int backLog = 10;
 	struct pollfd pollFds[ports.size()];
-	std::string resourcesPath = "../../resources/";
+	std::string resourcesPath = "../../resources";
 
    // 각 포트에 대해 소켓 생성 및 바인딩
    int index = 0;
@@ -54,21 +69,13 @@ int main(void)
                 char buffer[BUFFER_SIZE];
                 int size = recv(clientSocketFd, buffer, BUFFER_SIZE - 1, 0);
                 buffer[size] = '\0';
-				std::cout << std::endl << "========== Request ==========" << std::endl << std::endl;;
+				std::cout << std::endl << "========== Request ==========" << std::endl << std::endl;
 				std::cout << buffer;
-				std::cout << std::endl << "=============================" << std::endl << std::endl;;
-				HttpRequest request;
-				request.parse(buffer);
-				std::cout << "Method: " << request.method << std::endl;
-				std::cout << "Target: " << request.target << std::endl;
-				std::cout << "Version: " << request.version << std::endl;
-				std::cout << "Headers: " << std::endl;
-				for (std::map<std::string, std::string>::iterator it = request.headers.begin(); it != request.headers.end(); ++it)
-				{
-					std::cout << it->first << ": " << it->second << std::endl;
-				}
-				std::cout << "Body: " << request.body << std::endl;
-				const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html><html><head><title>Test</title></head><body><h1>Test</hh1></body></html>";
+				std::cout << std::endl << "=============================" << std::endl << std::endl;
+				HttpRequest httpRequest;
+				httpRequest.parse(buffer);
+				std::string reponseBody = readFileToString(resourcesPath + httpRequest.target);
+                const char* response = "HTTP/1.1 200 OK\nContent-Length: 12\n\nHello World!";
                 send(clientSocketFd, response, strlen(response), 0);
                 close(clientSocketFd);
 			}
