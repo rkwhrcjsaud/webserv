@@ -5,6 +5,7 @@
 
 const int PORT = 3000;
 const int BUFFER_SIZE = 1024;
+const int BACK_LOG = 10;
 
 
 int	main(void)
