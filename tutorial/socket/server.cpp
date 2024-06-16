@@ -30,7 +30,7 @@ int	main(void)
 	socklen_t clientAddrLen = sizeof(clientAddr);
 
 	// 소켓과 주소를 바인딩한다.
-	// 만약 해당 주소가 사용 중이라면 Already in use 예외가 발생한다.
+	// 만약 해당 주소가 사용 중이라면 Address already in use 예외가 발생한다.
 	if (bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
 	{
 		std::cerr << "Address Binding Failed: " << strerror(errno) << std::endl;
@@ -52,13 +52,17 @@ int	main(void)
 	std::cout << "Server is listening..." << std::endl;
 
 	// 클라이언트 소켓이 연결을 요청할 경우 이를 수락한다.
+	// 두번째, 세번째 인수는 연결을 요청한 클라이언트의 정보를 받아오기 위해 필요하다.
 	int clientSocket = accept(serverSocket, (sockaddr*)&clientAddr, &clientAddrLen);
 
 	std::cout << "Connect is accepted!" << std::endl;
 
 	char buffer[BUFFER_SIZE];
+
+	// 버퍼를 Null로 초기화한다.
 	memset(buffer, 0, BUFFER_SIZE);
 
+	// recv 함수를 통해 클라이언트에서 전송한 데이터를 버퍼로 받아올 수 있다.
     int size = recv(clientSocket, buffer, sizeof(buffer), 0);
     if (size < 0) {
         std::cerr << "Receiving Data Failed" << std::endl;
@@ -74,6 +78,7 @@ int	main(void)
 
     std::cout << "Received Data From Client: " << buffer << std::endl;
 
+	// send 함수를 통해 클라이언트에게 데이터를 전송할 수 있다.
 	const char* message = "Hello, webclien!";
 	if (send(clientSocket, message, strlen(message), 0) < 0)
 	{

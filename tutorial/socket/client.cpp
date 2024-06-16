@@ -3,6 +3,11 @@
 #include <sys/socket.h>
 #include <unistd.h>  
 
+/*
+	자세한 주석은 server.cpp를 참고하라.
+*/
+
+
 const int PORT = 3000;
 const int BUFFER_SIZE = 1024;
 
