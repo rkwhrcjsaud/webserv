@@ -75,7 +75,6 @@ int main(void)
 				HttpRequest httpRequest;
 				httpRequest.parse(buffer);
 				std::string reponseBody = readFileToString(resourcesPath + httpRequest.target);
-				
                 const char* response = "HTTP/1.1 200 OK\nContent-Length: 12\n\nHello World!";
                 send(clientSocketFd, response, strlen(response), 0);
                 close(clientSocketFd);

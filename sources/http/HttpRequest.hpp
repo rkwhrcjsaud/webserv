@@ -16,13 +16,15 @@ class HttpRequest : public Http
 		HttpRequest(const HttpRequest& obj);
 		~HttpRequest();
 
-		HttpRequest& operator= (HttpRequest& rhs);
+		HttpRequest& operator= (const HttpRequest& rhs);
 
 		EHttpMethod method;
 		std::string target;
 		std::string version;
 
-		virtual bool parse(std::string s);
+		virtual bool parse(const std::string& s);
 };
+
+#include "HttpRequest.cpp"
 
 #endif

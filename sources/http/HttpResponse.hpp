@@ -5,11 +5,11 @@
 class HttpResponse : public Http
 {
 	public:
-		HttpResponse();
-		HttpResponse(const HttpResponse& obj);
-		~HttpResponse();
+		HttpResponse() {};
+		HttpResponse(const HttpResponse& obj) {};
+		~HttpResponse() {};
 
-		HttpResponse& operator= (HttpResponse& rhs);
+		HttpResponse& operator= (HttpResponse& rhs) { return *this; }
 
 		std::string version;
 		unsigned int statusCode;
