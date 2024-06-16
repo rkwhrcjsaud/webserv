@@ -24,6 +24,11 @@ std::string readFileToString(const std::string& filename) {
     return content;
 }
 
+bool endsWith(const std::string& str, const std::string& suffix) {
+    if (str.length() < suffix.length()) return false;
+    return str.substr(str.length() - suffix.length()) == suffix;
+}
+
 int main(void)
 {
 	// 설정 초기화 (추후 Config 파일로 대체)
@@ -74,10 +79,22 @@ int main(void)
 				std::cout << std::endl << "=============================" << std::endl << std::endl;
 				HttpRequest httpRequest;
 				httpRequest.parse(buffer);
-				std::string reponseBody = readFileToString(resourcesPath + httpRequest.target);
-                const char* response = "HTTP/1.1 200 OK\nContent-Length: 12\n\nHello World!";
-                send(clientSocketFd, response, strlen(response), 0);
-                close(clientSocketFd);
+				std::string responseBody = readFileToString(resourcesPath + httpRequest.target);
+				if (endsWith(httpRequest.target, ".svg"))
+				{
+					std::string response = "HTTP/1.1 200 OK\nContent-Type: image/svg+xml\nContent-Length: " + std::to_string(responseBody.length()) + "\n\n"
+                      + responseBody;
+                	send(clientSocketFd, response.c_str(), strlen(response.c_str()), 0);
+                	close(clientSocketFd);
+				}
+				else
+				{
+					std::string response = "HTTP/1.1 200 OK\nContent-Length: " + std::to_string(responseBody.length()) + "\n\n"
+                      + responseBody;
+                	send(clientSocketFd, response.c_str(), strlen(response.c_str()), 0);
+                	close(clientSocketFd);
+				}
+				
 			}
 		}
 	}
