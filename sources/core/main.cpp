@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <cstring>
 #include <poll.h>
+#include "../http/HttpRequest.hpp"
 
 #define BUFFER_SIZE 1024
 
@@ -56,7 +57,18 @@ int main(void)
 				std::cout << std::endl << "========== Request ==========" << std::endl << std::endl;;
 				std::cout << buffer;
 				std::cout << std::endl << "=============================" << std::endl << std::endl;;
-                const char* response = "HTTP/1.1 200 OK\nContent-Length: 12\n\nHello World!";
+				HttpRequest request;
+				request.parse(buffer);
+				std::cout << "Method: " << request.method << std::endl;
+				std::cout << "Target: " << request.target << std::endl;
+				std::cout << "Version: " << request.version << std::endl;
+				std::cout << "Headers: " << std::endl;
+				for (std::map<std::string, std::string>::iterator it = request.headers.begin(); it != request.headers.end(); ++it)
+				{
+					std::cout << it->first << ": " << it->second << std::endl;
+				}
+				std::cout << "Body: " << request.body << std::endl;
+				const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html><html><head><title>Test</title></head><body><h1>Test</hh1></body></html>";
                 send(clientSocketFd, response, strlen(response), 0);
                 close(clientSocketFd);
 			}
