@@ -14,7 +14,18 @@ Context: main
 Create server block.
 
 ```
-Syntax:	server_name "input_your_server_name"
+Syntax:	listen [host:string]:[port:int]
+Default: listen localhost:4242
+Context: server
+```
+
+Sets the address and port for IP.
+
+The first server for a host:port will be the default for this host:port.<br>
+that means it will answer to all the requests that don’t belong to an other server.
+
+```
+Syntax:	server_name [name:string]
 Default: server_name ""
 Context: server
 ``````
@@ -27,6 +38,26 @@ Server names can't be duplicated.
 
 You can omit this directive and default server name is empty string.<br>
 Server that has empty name handles request for which there are no servers to handle.
+
+```
+Syntax:	error_page [error_page_path:string]
+Default: -
+Context: server
+``````
+
+Set error page for errors.
+
+Error page path is relative to root path.
+
+```
+Syntax:	client_max_body_size [size:int];
+Default: client_max_body_size 100;
+Context: server
+```
+
+Sets the maximum allowed size of the client request body.
+
+If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client.
 
 
 # Requirements
