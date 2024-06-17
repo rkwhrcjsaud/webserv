@@ -13,6 +13,21 @@ Context: main
 
 Create server block.
 
+```
+Syntax:	server_name "input_your_server_name"
+Default: server_name ""
+Context: server
+``````
+
+Set name for virtual server.
+
+When a request comes in, webserv compares the value of the Host header with server names to determine which server should handle the request.
+
+Server names can't be duplicated.
+
+You can omit this directive and default server name is empty string.<br>
+Server that has empty name handles request for which there are no servers to handle.
+
 
 # Requirements
 * Choose the port and host of each ’server’.
