@@ -3,6 +3,17 @@
 
 <br><br>
 
+# Configuration
+
+```
+Syntax:	server
+Default: -
+Context: main
+``````
+
+Create server block.
+
+
 # Requirements
 * Choose the port and host of each ’server’.
   * [nginx server](https://nginx.org/en/docs/http/ngx_http_core_module.html#server) 

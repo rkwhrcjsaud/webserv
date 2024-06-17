@@ -7,7 +7,6 @@
 #include <poll.h>
 #include <fstream>
 #include <filesystem>
-#include <thread>
 #include "../http/HttpRequest.hpp"
 #include "../http/HttpResponse.hpp"
 
@@ -30,13 +29,44 @@ bool endsWith(const std::string& str, const std::string& suffix) {
     return str.substr(str.length() - suffix.length()) == suffix;
 }
 
-void workerProcess( pollfd *pollFds, int portSize, std::string& resourcesPath)
+int main(void)
 {
+	// 설정 초기화 (추후 Config 파일로 대체)
+    std::list<int> ports;
+    ports.push_back(51000);
+    ports.push_back(52000);
+    ports.push_back(53000);
+	int backLog = 10;
+	struct pollfd pollFds[ports.size()];
+	std::string resourcesPath = "../../resources";
+
+   // 각 포트에 대해 소켓 생성 및 바인딩
+   int index = 0;
+    for (std::list<int>::iterator it = ports.begin(); it != ports.end(); ++it) 
+	{
+        int serverSocketFd = socket(AF_INET, SOCK_STREAM, 0);
+
+		sockaddr_in serverAddress;
+		serverAddress.sin_family = AF_INET;
+		serverAddress.sin_port = htons(*it);
+		serverAddress.sin_addr.s_addr = INADDR_ANY;
+        
+		bind(serverSocketFd, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
+		listen(serverSocketFd, backLog);
+
+		pollFds[index].fd = serverSocketFd;
+        pollFds[index].events = POLLIN;
+        pollFds[index].revents = 0;
+		index++;
+
+		std::cout << "Port " << *it << " is listening..." << std::endl;
+    }
+
 	while (true)
 	{
 		std::cout << "Polling..." << std::endl;
-		poll(pollFds, portSize, -1);
-		for (int i = 0; i < portSize; i++)
+		poll(pollFds, ports.size(), -1);
+		for (int i = 0; i < ports.size(); i++)
 		{
 			if (pollFds[i].revents & POLLIN)
 			{
@@ -68,49 +98,6 @@ void workerProcess( pollfd *pollFds, int portSize, std::string& resourcesPath)
 			}
 		}
 	}
-}
-
-int main(void)
-{
-	// 설정 초기화 (추후 Config 파일로 대체)
-    std::list<int> ports;
-    ports.push_back(51000);
-    ports.push_back(52000);
-    ports.push_back(53000);
-	int backLog = 10;
-	struct pollfd pollFds[3];
-	std::string resourcesPath = "../../resources";
-	int numOfWorkers = 4;
-
-   // 각 포트에 대해 소켓 생성 및 바인딩
-   int index = 0;
-    for (std::list<int>::iterator it = ports.begin(); it != ports.end(); ++it) 
-	{
-        int serverSocketFd = socket(AF_INET, SOCK_STREAM, 0);
-
-		sockaddr_in serverAddress;
-		serverAddress.sin_family = AF_INET;
-		serverAddress.sin_port = htons(*it);
-		serverAddress.sin_addr.s_addr = INADDR_ANY;
-        
-		bind(serverSocketFd, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
-		listen(serverSocketFd, backLog);
-
-		pollFds[index].fd = serverSocketFd;
-        pollFds[index].events = POLLIN;
-        pollFds[index].revents = 0;
-		index++;
-
-		std::cout << "Port " << *it << " is listening..." << std::endl;
-    }
-
-
-	
-	std::thread t1(workerProcess, pollFds, ports.size(), resourcesPath);
-	std::thread t2(workerProcess, pollFds, ports.size(), resourcesPath);
-	std::thread t3(workerProcess, pollFds, ports.size(), resourcesPath);
-	std::thread t4(workerProcess, pollFds, ports.size(), resourcesPath);
-	
 
     return 0;
 }
