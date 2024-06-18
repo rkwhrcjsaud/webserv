@@ -2,23 +2,19 @@
 #include <string>
 #include <map>
 
-HttpRequest::HttpRequest() : Http()
-{
+HttpRequest::HttpRequest() : Http() {
 }
 
-HttpRequest::HttpRequest(const HttpRequest& obj) : Http(obj)
-{
+HttpRequest::HttpRequest(const HttpRequest& obj) : Http(obj) {
     this->method = obj.method;
     this->target = obj.target;
     this->version = obj.version;
 }
 
-HttpRequest::~HttpRequest()
-{
+HttpRequest::~HttpRequest() {
 }
 
-HttpRequest& HttpRequest::operator= (const HttpRequest& rhs)
-{
+HttpRequest& HttpRequest::operator= (const HttpRequest& rhs) {
     this->headers = rhs.headers;
     this->body = rhs.body;
     this->method = rhs.method;
@@ -27,8 +23,7 @@ HttpRequest& HttpRequest::operator= (const HttpRequest& rhs)
     return *this;
 }
 
-bool HttpRequest::parse(const std::string& s)
-{
+bool HttpRequest::parse(const std::string& s) {
     std::string startLine = s.substr(0, s.find("\r\n"));
     std::string method = startLine.substr(0, startLine.find(" "));
     std::string target = startLine.substr(startLine.find(" ") + 1, startLine.find(" ", startLine.find(" ") + 1) - startLine.find(" ") - 1);
@@ -45,6 +40,10 @@ bool HttpRequest::parse(const std::string& s)
 
     if (method == "" || target == "" || version == "" || headers == "")
         return false;
+
+    // default page
+    if (target == "/")
+        target = "/index.html";
 
     if (method == "GET")
         this->method = GET;
