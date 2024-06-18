@@ -106,6 +106,7 @@ be saved.
 * [Nginx Internals: An In-Depth Look at Connection Processing](https://codedamn.com/news/backend/nginx-connection-processing)
 * [Inside NGINX: How We Designed for Performance & Scale](https://www.f5.com/company/blog/nginx/inside-nginx-how-we-designed-for-performance-scale)
 * [The WWW Common Gateway Interface Version 1.1](https://datatracker.ietf.org/doc/html/draft-robinson-www-interface-00)
+* [IO-Multiplexing](https://velog.io/@kafkaaaa/IO-Multiplexing-%EC%9E%85%EC%B6%9C%EB%A0%A5-%EB%8B%A4%EC%A4%91%ED%99%94)
 
 # Conventions
 
