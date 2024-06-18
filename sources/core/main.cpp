@@ -82,19 +82,18 @@ int main(void)
 				std::string responseBody = readFileToString(resourcesPath + httpRequest.target);
 				if (endsWith(httpRequest.target, ".svg"))
 				{
-					std::string response = "HTTP/1.1 200 OK\nContent-Type: image/svg+xml\nContent-Length: " + std::to_string(responseBody.length()) + "\n\n"
+					std::string response = "HTTP/1.1 200 OK\r\nContent-Type: image/svg+xml\r\nContent-Length: " + std::to_string(responseBody.length()) + "\r\n\r\n"
                       + responseBody;
-                	send(clientSocketFd, response.c_str(), strlen(response.c_str()), 0);
+                	send(clientSocketFd, response.c_str(), response.size(), 0);
                 	close(clientSocketFd);
 				}
 				else
 				{
-					std::string response = "HTTP/1.1 200 OK\nContent-Length: " + std::to_string(responseBody.length()) + "\n\n"
+					std::string response = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(responseBody.length()) + "\r\n\r\n"
                       + responseBody;
-                	send(clientSocketFd, response.c_str(), strlen(response.c_str()), 0);
+                	send(clientSocketFd, response.c_str(), response.size(), 0);
                 	close(clientSocketFd);
 				}
-				
 			}
 		}
 	}
