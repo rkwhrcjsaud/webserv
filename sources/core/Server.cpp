@@ -41,6 +41,13 @@ Server& Server::operator= (const Server& rhs) {
     return *this;
 }
 
+void Server::setNonBlocking(int fd) {
+    // 소켓의 현재 파일 상태 호출
+    int flags = fcntl(fd, F_GETFL, 0);
+    // O_NONBLOCK 플래그를 추가 (비동기 설정)
+    fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}
+
 void Server::start() {
     setupSockets();
     eventLoop();
@@ -60,9 +67,12 @@ void Server::setupSockets() {
         bind(serverSocketFd, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
         listen(serverSocketFd, backLog_);
 
+        setNonBlocking(serverSocketFd);
         pollFds_[index].fd = serverSocketFd;
         pollFds_[index].events = POLLIN;
         pollFds_[index].revents = 0;
+
+        serverSocketFds_.push_back(serverSocketFd);
         index++;
 
         std::cout << "Port " << port << " is listening..." << std::endl;
@@ -75,14 +85,29 @@ void Server::eventLoop() {
         poll(pollFds_.data(), pollFds_.size(), -1);
         for (int i = 0; i < pollFds_.size(); i++) {
             if (pollFds_[i].revents & POLLIN) {
-                handleEvent(pollFds_[i].fd);
+                if (std::find(serverSocketFds_.begin(), serverSocketFds_.end(), pollFds_[i].fd) != serverSocketFds_.end()) {
+                    // 서버 소켓인 경우
+                    int clientSocketFd = accept(pollFds_[i].fd, nullptr, nullptr);
+                    setNonBlocking(clientSocketFd);
+                    pollfd clientPollFd;
+                    clientPollFd.fd = clientSocketFd;
+                    clientPollFd.events = POLLIN;
+                    clientPollFd.revents = 0;
+                    pollFds_.push_back(clientPollFd);
+                }
+                else {
+                    // 클라이언트 소켓인 경우
+                    handleEvent(pollFds_[i].fd);
+                    close(pollFds_[i].fd);
+                    pollFds_.erase(pollFds_.begin() + i);
+                    --i;
+                }
             }
         }
     }
 }
 
-void Server::handleEvent(int serverSocketFd) {
-    int clientSocketFd = accept(serverSocketFd, nullptr, nullptr);
+void Server::handleEvent(int clientSocketFd) {
     char buffer[BUFFER_SIZE];
     int size = recv(clientSocketFd, buffer, BUFFER_SIZE - 1, 0);
     buffer[size] = '\0';
@@ -109,5 +134,4 @@ void Server::handleEvent(int serverSocketFd) {
             + responseBody;
     }
     send(clientSocketFd, response.c_str(), response.size(), 0);
-    close(clientSocketFd);
 }
