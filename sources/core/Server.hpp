@@ -13,6 +13,7 @@
 # include <fstream>
 # include <filesystem>
 # include <iostream>
+# include <fcntl.h>
 # include "../http/HttpRequest.hpp"
 # include "../http/HttpResponse.hpp"
 
@@ -29,13 +30,15 @@ class Server {
     private:
         Server();
 
+        void setNonBlocking(int fd);
         void setupSockets();
         void eventLoop();
-        void handleEvent(int serverSocketFd);
+        void handleEvent(int clientSocketFd);
 
         std::list<int> ports_;
         std::string resourcesPath_;
         std::vector<pollfd> pollFds_;
+        std::vector<int> serverSocketFds_;
         static const int backLog_;
 };
 
