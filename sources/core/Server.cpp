@@ -1,6 +1,35 @@
 #include "Server.hpp"
 
-const int Server::backLog_ = 10;
+const int Server::_backLog = 10;
+
+Server::Server(const std::list<int>& ports, const std::string& resourcesPath)
+    : _ports(ports), _resourcesPath(resourcesPath) {
+    _pollFds.resize(_ports.size());
+}
+
+Server::Server(const Server& obj)
+    : _ports(obj._ports), _resourcesPath(obj._resourcesPath), _pollFds(obj._pollFds) {
+	/* DO NOTHING */
+}
+
+Server::Server()
+    : _ports(), _resourcesPath() {
+	/* DO NOTHING */
+}
+
+Server::~Server() {
+	/* DO NOTHING */
+}
+
+Server& Server::operator= (const Server& rhs) {
+	if (this != &rhs)
+	{
+		_ports = rhs._ports;
+	    _resourcesPath = rhs._resourcesPath;
+	    _pollFds = rhs._pollFds;
+	}
+    return *this;
+}
 
 std::string readFileToString(const std::string& filename) {
     std::ifstream file(filename);
@@ -18,44 +47,20 @@ bool endsWith(const std::string& str, const std::string& suffix) {
     return str.substr(str.length() - suffix.length()) == suffix;
 }
 
-Server::Server(const std::list<int>& ports, const std::string& resourcesPath)
-    : ports_(ports), resourcesPath_(resourcesPath) {
-    pollFds_.resize(ports_.size());
-}
 
-Server::Server(const Server& obj)
-    : ports_(obj.ports_), resourcesPath_(obj.resourcesPath_), pollFds_(obj.pollFds_) {
-}
-
-Server::Server()
-    : ports_(), resourcesPath_() {
-}
-
-Server::~Server() {
-}
-
-Server& Server::operator= (const Server& rhs) {
-    ports_ = rhs.ports_;
-    resourcesPath_ = rhs.resourcesPath_;
-    pollFds_ = rhs.pollFds_;
-    return *this;
-}
-
-void Server::setNonBlocking(int fd) {
-    // 소켓의 현재 파일 상태 호출
-    int flags = fcntl(fd, F_GETFL, 0);
-    // O_NONBLOCK 플래그를 추가 (비동기 설정)
-    fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-}
-
-void Server::start() {
+void Server::Start() {
     setupSockets();
     eventLoop();
 }
 
+void Server::setNonBlocking(int fd) {
+    int flags = fcntl(fd, F_GETFL, 0);
+    fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}
+
 void Server::setupSockets() {
     int index = 0;
-    for (std::list<int>::iterator it = ports_.begin(); it != ports_.end(); ++it) {
+    for (std::list<int>::iterator it = _ports.begin(); it != _ports.end(); ++it) {
         int port = *it;
         int serverSocketFd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -65,14 +70,14 @@ void Server::setupSockets() {
         serverAddress.sin_addr.s_addr = INADDR_ANY;
 
         bind(serverSocketFd, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
-        listen(serverSocketFd, backLog_);
+        listen(serverSocketFd, _backLog);
 
         setNonBlocking(serverSocketFd);
-        pollFds_[index].fd = serverSocketFd;
-        pollFds_[index].events = POLLIN;
-        pollFds_[index].revents = 0;
+        _pollFds[index].fd = serverSocketFd;
+        _pollFds[index].events = POLLIN;
+        _pollFds[index].revents = 0;
 
-        serverSocketFds_.push_back(serverSocketFd);
+        _serverSocketFds.push_back(serverSocketFd);
         index++;
 
         std::cout << "Port " << port << " is listening..." << std::endl;
@@ -82,24 +87,22 @@ void Server::setupSockets() {
 void Server::eventLoop() {
     while (true) {
         std::cout << "Polling..." << std::endl;
-        poll(pollFds_.data(), pollFds_.size(), -1);
-        for (int i = 0; i < pollFds_.size(); i++) {
-            if (pollFds_[i].revents & POLLIN) {
-                if (std::find(serverSocketFds_.begin(), serverSocketFds_.end(), pollFds_[i].fd) != serverSocketFds_.end()) {
-                    // 서버 소켓인 경우
-                    int clientSocketFd = accept(pollFds_[i].fd, nullptr, nullptr);
+        poll(_pollFds.data(), _pollFds.size(), -1);
+        for (int i = 0; i < _pollFds.size(); i++) {
+            if (_pollFds[i].revents & POLLIN) {
+                if (std::find(_serverSocketFds.begin(), _serverSocketFds.end(), _pollFds[i].fd) != _serverSocketFds.end()) {  // 서버 소켓인 경우
+                    int clientSocketFd = accept(_pollFds[i].fd, nullptr, nullptr);
                     setNonBlocking(clientSocketFd);
                     pollfd clientPollFd;
                     clientPollFd.fd = clientSocketFd;
                     clientPollFd.events = POLLIN;
                     clientPollFd.revents = 0;
-                    pollFds_.push_back(clientPollFd);
+                    _pollFds.push_back(clientPollFd);
                 }
-                else {
-                    // 클라이언트 소켓인 경우
-                    handleEvent(pollFds_[i].fd);
-                    close(pollFds_[i].fd);
-                    pollFds_.erase(pollFds_.begin() + i);
+                else {  // 클라이언트 소켓인 경우
+                    handleEvent(_pollFds[i].fd);
+                    close(_pollFds[i].fd);
+                    _pollFds.erase(_pollFds.begin() + i);
                     --i;
                 }
             }
@@ -109,7 +112,7 @@ void Server::eventLoop() {
 
 void Server::handleEvent(int clientSocketFd) {
     char buffer[BUFFER_SIZE];
-    int size = recv(clientSocketFd, buffer, BUFFER_SIZE - 1, 0);
+    int size = recv(clientSocketFd, buffer, BUFFER_SIZE - 1, 0);	// 클라이언트 소켓으로부터 Http 리퀘스트 내용 읽기
     buffer[size] = '\0';
 
     std::cout << std::endl << "========== Request ==========" << std::endl << std::endl;
@@ -119,7 +122,7 @@ void Server::handleEvent(int clientSocketFd) {
     HttpRequest httpRequest;
     httpRequest.parse(buffer);
 
-    std::string responseBody = readFileToString(resourcesPath_ + httpRequest.target);
+    std::string responseBody = readFileToString(_resourcesPath + httpRequest.target);
     std::string response = "";
     if (endsWith(httpRequest.target, ".svg"))
     {
@@ -135,3 +138,14 @@ void Server::handleEvent(int clientSocketFd) {
     }
     send(clientSocketFd, response.c_str(), response.size(), 0);
 }
+
+
+
+
+
+
+
+
+
+
+

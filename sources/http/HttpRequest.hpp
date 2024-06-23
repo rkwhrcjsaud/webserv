@@ -25,6 +25,4 @@ class HttpRequest : public Http
 		virtual bool parse(const std::string& s);
 };
 
-#include "HttpRequest.cpp"
-
 #endif

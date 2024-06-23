@@ -5,6 +5,8 @@
 
 # include <list>
 # include <string>
+# include <vector>
+# include <map>
 # include <unistd.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
@@ -25,7 +27,7 @@ class Server {
 
         Server& operator= (const Server& rhs);
 
-        void start();
+        void Start();
 
     private:
         Server();
@@ -35,13 +37,11 @@ class Server {
         void eventLoop();
         void handleEvent(int clientSocketFd);
 
-        std::list<int> ports_;
-        std::string resourcesPath_;
-        std::vector<pollfd> pollFds_;
-        std::vector<int> serverSocketFds_;
-        static const int backLog_;
+        std::list<int> _ports;
+        std::string _resourcesPath;
+        std::vector<pollfd> _pollFds;
+        std::vector<int> _serverSocketFds;
+        static const int _backLog;
 };
-
-# include "Server.cpp"
 
 #endif
